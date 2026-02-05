@@ -23,73 +23,68 @@ public partial class Calculator : System.Web.UI.Page
 
     protected void ddlpayback_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (ddlpayback.SelectedItem.Value == "3")
+        string selectedValue = ddlpayback.SelectedItem.Value;
+        if (selectedValue == "-1") return;
+
+        double loanamt;
+        if (!double.TryParse(txtamount.Value, out loanamt) || loanamt <= 0)
         {
-            // 5% loan interest
-
-            double loanamt = Convert.ToDouble(txtamount.Value);
-            double repaymentamount = Convert.ToDouble((0.05 * loanamt) + loanamt);
-            lblrepaymentamount.Text = repaymentamount.ToString();
-
-            lblamount.Text = loanamt.ToString();
-            lblinterest.Text = "5%";
-            lblrepaymentduration.Text = "3 Months";
-
-            lbldepositamount.Text = "You need to deposit Ether Collateral of";
-            lblether.Text = "0.0001";
-
-            Session["loanamt"] = loanamt;
-            Session["repayamt"] = repaymentamount;
-            Session["interest"] = lblinterest.Text;
-            Session["etheramt"] = lblether.Text;
-            Session["loandate"] = DateTime.Now.ToShortDateString();
-            Session["repaydate"] = DateTime.Now.AddMonths(3);
-
+            lblrepaymentamount.Text = "Invalid Amount";
+            lblether.Text = "0";
+            lbldepositamount.Text = "Please enter a valid loan amount.";
+            return;
         }
-        else if (ddlpayback.SelectedItem.Value == "6")
+
+        CalculateLoan(loanamt, selectedValue);
+    }
+
+    private void CalculateLoan(double loanamt, string duration)
+    {
+        double interestRate = 0;
+        double etherCollateral = 0;
+        string durationText = "";
+        int monthsToAdd = 0;
+
+        switch (duration)
         {
-            // 10% loan interest
-            double loanamt = Convert.ToDouble(txtamount.Value);
-            double repaymentamount = Convert.ToDouble((0.10 * loanamt) + loanamt);
-            lblrepaymentamount.Text = repaymentamount.ToString();
-
-            lblamount.Text = loanamt.ToString();
-            lblinterest.Text = "10%";
-            lblrepaymentduration.Text = "6 Months";
-
-            lbldepositamount.Text = "You need to deposit Ether Collateral of";
-            lblether.Text = "0.0002";
-
-            Session["loanamt"] = loanamt;
-            Session["repayamt"] = repaymentamount;
-            Session["interest"] = lblinterest.Text;
-            Session["etheramt"] = lblether.Text;
-            Session["loandate"] = DateTime.Now.ToShortDateString();
-            Session["repaydate"] = DateTime.Now.AddMonths(6);
-
+            case "3":
+                interestRate = 0.05;
+                etherCollateral = 0.0001;
+                durationText = "3 Months";
+                monthsToAdd = 3;
+                break;
+            case "6":
+                interestRate = 0.10;
+                etherCollateral = 0.0002;
+                durationText = "6 Months";
+                monthsToAdd = 6;
+                break;
+            case "1":
+                interestRate = 0.15;
+                etherCollateral = 0.00035;
+                durationText = "1 Year";
+                monthsToAdd = 12;
+                break;
+            default:
+                return;
         }
-        else if (ddlpayback.SelectedItem.Value == "1")
-        {
-            // 15% loan interest
-            double loanamt = Convert.ToDouble(txtamount.Value);
-            double repaymentamount = Convert.ToDouble((0.15 * loanamt) + loanamt);
-            lblrepaymentamount.Text = repaymentamount.ToString();
 
-            lblamount.Text = loanamt.ToString();
-            lblinterest.Text = "15%";
-            lblrepaymentduration.Text = "1 Year";
+        double repaymentamount = loanamt * (1 + interestRate);
+        
+        lblrepaymentamount.Text = repaymentamount.ToString("N2");
+        lblamount.Text = loanamt.ToString("N2");
+        lblinterest.Text = (interestRate * 100).ToString() + "%";
+        lblrepaymentduration.Text = durationText;
+        lbldepositamount.Text = "You need to deposit Ether Collateral of";
+        lblether.Text = etherCollateral.ToString();
 
-            lbldepositamount.Text = "You need to deposit Ether Collateral of";
-            lblether.Text = "0.00035";
-
-            Session["loanamt"] = loanamt;
-            Session["repayamt"] = repaymentamount;
-            Session["interest"] = lblinterest.Text;
-            Session["etheramt"] = lblether.Text;
-            Session["loandate"] = DateTime.Now.ToShortDateString();
-            Session["repaydate"] = DateTime.Now.AddMonths(12);
-
-        }
+        // Store in Session
+        Session["loanamt"] = loanamt;
+        Session["repayamt"] = repaymentamount;
+        Session["interest"] = lblinterest.Text;
+        Session["etheramt"] = lblether.Text;
+        Session["loandate"] = DateTime.Now.ToShortDateString();
+        Session["repaydate"] = DateTime.Now.AddMonths(monthsToAdd);
     }
 
     protected void btnstart_Click(object sender, EventArgs e)

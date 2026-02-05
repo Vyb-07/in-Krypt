@@ -11,7 +11,10 @@
 
 - **Collateral-Backed Loans**: Borrow fiat/stable funds by locking Ether (ETH) as collateral.
 - **Smart Contract Escrow**: (Planned) Trustless holding of assets during the loan lifecycle.
-- **Instant Loan Calculator**: Real-time calculation of interest rates and collateral requirements based on loan duration.
+- **Instant Loan Calculator**: Real-time calculation of interest rates and collateral requirements based on loan duration:
+    - **3 Months**: 5% Interest | 0.0001 ETH Collateral
+    - **6 Months**: 10% Interest | 0.0002 ETH Collateral
+    - **1 Year**: 15% Interest | 0.00035 ETH Collateral
 - **Seamless Repayments**: Integrated with Razorpay for secure and easy loan repayments.
 - **Zero Credit Score Impact**: Loan eligibility is determined solely by crypto holdings.
 

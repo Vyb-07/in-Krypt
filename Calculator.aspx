@@ -4,7 +4,7 @@
     <script type="text/javascript">
         window.onload = function () {
             if (typeof web3 == 'undefined') {
-                document.getElementById("metamask").innerHTML = "U need metamask installed";
+                document.getElementById("metamask").innerHTML = "You need metamask installed";
             }
 
         }
@@ -135,11 +135,11 @@
         <h2>Calculate your Loan</h2>
        <div class="row">
            <div class="col-md-6" style="align-content:center">
-               <h3>How much do U want to Borrow?</h3>
+               <h3>How much do You want to Borrow?</h3>
                <br />
-               <input id="txtamount" runat="server" type="text"  placeholder="Enter anount in Rupees" />
+               <input id="txtamount" runat="server" type="text"  placeholder="Enter amount in Rupees (e.g. 5000)" />
                <br />
-               <h3>How long do U need to payback?</h3>
+               <h3>How long do You need to payback?</h3>
                <br />
                <asp:DropDownList ID="ddlpayback" AutoPostBack="true" OnSelectedIndexChanged="ddlpayback_SelectedIndexChanged" runat="server">
                    <asp:ListItem Text="--select duration--" Value="-1"></asp:ListItem>
