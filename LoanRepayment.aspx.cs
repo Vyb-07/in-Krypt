@@ -16,23 +16,79 @@ public partial class LoanRepayment : System.Web.UI.Page
     {
         if (!IsPostBack)
         {
-            txtAmount.Text = registrationAmount.ToString();
+            if (Session["username"] != null)
+            {
+                string username = Session["username"].ToString();
+                FetchActiveLoan(username);
+                FetchUserDetails(username);
+            }
+            else
+            {
+                Response.Redirect("~/Account/Login.aspx");
+            }
+        }
+    }
+
+    private void FetchActiveLoan(string username)
+    {
+        try
+        {
+            inKryptDataSetTableAdapters.tbl_UserLoansTableAdapter iloans = new inKryptDataSetTableAdapters.tbl_UserLoansTableAdapter();
+            inKryptDataSet.tbl_UserLoansDataTable itbl = iloans.GetData();
+            
+            // Find the latest "Open" loan for this user
+            var activeLoan = itbl.AsEnumerable()
+                                .Where(r => r.Field<string>("username") == username && r.Field<string>("status") == "Open")
+                                .OrderByDescending(r => r.Field<DateTime>("loan_date"))
+                                .FirstOrDefault();
+
+            if (activeLoan != null)
+            {
+                txtAmount.Text = activeLoan.Field<double>("repayment_amount").ToString("N2");
+                txtAmount.ReadOnly = true; 
+                Session["active_loan_id"] = activeLoan.Field<int>("user_loan_id");
+            }
+            else
+            {
+                txtAmount.Text = "0.00";
+                btnRepay.Enabled = false;
+                // Add a message if no active loan
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log or show error
+        }
+    }
+
+    private void FetchUserDetails(string username)
+    {
+        inKryptDataSetTableAdapters.tbl_UsersTableAdapter iusers = new inKryptDataSetTableAdapters.tbl_UsersTableAdapter();
+        inKryptDataSet.tbl_UsersDataTable itbl = iusers.GetByusername(username);
+        if (itbl.Rows.Count > 0)
+        {
+            var userRow = itbl[0];
+            txtName.Text = userRow.IsfullnameNull() ? "" : userRow.fullname;
         }
     }
 
     protected void btnRepay_Click(object sender, EventArgs e)
     {
-        decimal amountinSubunits = registrationAmount * 100;
+        decimal amount;
+        if (!decimal.TryParse(txtAmount.Text, out amount) || amount <= 0) return;
+
+        decimal amountinSubunits = amount * 100;
         string currency = "INR";
         string name = "In-Krypt";
-        string description = "Razorpay Payment Gateway Demo";
+        string description = "Loan Repayment for " + Session["username"].ToString();
         string imageLogo = "";
         string profileName = txtName.Text;
         string profileMobile = txtMobile.Text;
         string profileEmail = txtEmail.Text;
         Dictionary<string, string> notes = new Dictionary<string, string>()
             {
-                { "note 1", "this is a payment note" }, { "note 2", "here another note, you can add max 15 notes" }
+                { "username", Session["username"].ToString() }, 
+                { "loan_id", Session["active_loan_id"]?.ToString() ?? "0" }
             };
 
         string orderId = CreateOrder(amountinSubunits, currency, notes);

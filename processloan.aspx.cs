@@ -70,15 +70,43 @@ public partial class processloan : System.Web.UI.Page
     {
         try
         {
+            if (Session["username"] == null || Session["loanamt"] == null)
+            {
+                lblmsg.Text = "Session expired. Please calculate loan again.";
+                lblmsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
             tbl_UserLoansTableAdapter iloans = new tbl_UserLoansTableAdapter();
-            //iloans.Insert(Session["username"].ToString(), Convert.ToDouble(Session["loanamt"]), Convert.ToDateTime(Session["loandate"]), Convert.ToDouble(Session["repayment"]), Convert.ToDateTime(Session["repaydate"]), "3 Months", Session["interest"].ToString(), "Open", lblethaddress.Text, Convert.ToDouble(lblethamt.Text));
-            double etheramt = double.Parse(lblethamt.Text);
+            
+            string username = Session["username"].ToString();
+            double loanamt = Convert.ToDouble(Session["loanamt"]);
+            DateTime loandate = Convert.ToDateTime(Session["loandate"]);
+            double repaymentamt = Convert.ToDouble(Session["repayamt"]);
+            DateTime repaydate = Convert.ToDateTime(Session["repaydate"]);
+            string duration = "3 Months"; // This should ideally come from session too, but currently defaults to 3 in some places. I'll use a placeholder or check session.
+            
+            // Re-evaluating duration based on months added
+            if (repaydate.Month == loandate.AddMonths(3).Month) duration = "3 Months";
+            else if (repaydate.Month == loandate.AddMonths(6).Month) duration = "6 Months";
+            else if (repaydate.Month == loandate.AddMonths(12).Month) duration = "1 Year";
+
+            string interest = Session["interest"].ToString();
+            string status = "Open";
+            string ethAddress = lblethaddress.Text == "Label" ? "" : lblethaddress.Text;
+            double ethLocked = Convert.ToDouble(lblethamt.Text);
+
+            iloans.Insert(username, loanamt, loandate, repaymentamt, repaydate, duration, interest, status, ethAddress, ethLocked);
+            
             lblmsg.Text = "Loan Processed Successfully";
+            lblmsg.ForeColor = System.Drawing.Color.Green;
+            btnprocess.Enabled = false;
 
         }
         catch(Exception ex)
         {
-            lblmsg.Text = ex.ToString();
+            lblmsg.Text = "Error: " + ex.Message;
+            lblmsg.ForeColor = System.Drawing.Color.Red;
         }
     }
 }

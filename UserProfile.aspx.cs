@@ -34,7 +34,10 @@ public partial class UserProfile : System.Web.UI.Page
                     }
                     else
                     {
-                        ddlbank.SelectedItem.Text = irow.bank;
+                        // Note: Setting by color/text might be tricky if values don't match exactly.
+                        // Assuming DDL items match database values.
+                        var item = ddlbank.Items.FindByText(irow.bank);
+                        if (item != null) item.Selected = true;
                     }
                     if (irow.Isaccount_nameNull())
                     {
@@ -54,7 +57,30 @@ public partial class UserProfile : System.Web.UI.Page
                     }
                 }
             }
+            BindUserLoans(Session["username"].ToString());
         }
+    }
+
+    private void BindUserLoans(string username)
+    {
+        try
+        {
+            tbl_UserLoansTableAdapter iloans = new tbl_UserLoansTableAdapter();
+            inKryptDataSet.tbl_UserLoansDataTable loanTable = iloans.GetData();
+            
+            // Filter by username and bind
+            var userLoans = loanTable.AsEnumerable()
+                                     .Where(r => r.Field<string>("username") == username)
+                                     .OrderByDescending(r => r.Field<DateTime>("loan_date"))
+                                     .ToList();
+
+            if (userLoans.Any())
+            {
+                gvLoans.DataSource = userLoans.CopyToDataTable();
+                gvLoans.DataBind();
+            }
+        }
+        catch (Exception) { /* Handle error */ }
     }
 
     protected void btnupdate_Click(object sender, EventArgs e)

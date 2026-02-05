@@ -45,6 +45,24 @@
                 <asp:Button runat="server" ID="btnupdate" OnClick="btnupdate_Click" Text="Update Profile" CssClass="btn btn-default" />
             </div>
         </div>
+
+        <hr />
+        <h4>Your Loans</h4>
+        <div class="row">
+            <div class="col-md-12">
+                <asp:GridView ID="gvLoans" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="False" EmptyDataText="No loans found.">
+                    <Columns>
+                        <asp:BoundField DataField="loan_amount" HeaderText="Amount" DataFormatString="{0:N2}" />
+                        <asp:BoundField DataField="loan_date" HeaderText="Date" DataFormatString="{0:dd-MMM-yyyy}" />
+                        <asp:BoundField DataField="repayment_amount" HeaderText="Repayment" DataFormatString="{0:N2}" />
+                        <asp:BoundField DataField="repayment_date" HeaderText="Due Date" DataFormatString="{0:dd-MMM-yyyy}" />
+                        <asp:BoundField DataField="loan_duration" HeaderText="Duration" />
+                        <asp:BoundField DataField="loan_interest" HeaderText="Interest" />
+                        <asp:BoundField DataField="status" HeaderText="Status" />
+                    </Columns>
+                </asp:GridView>
+            </div>
+        </div>
     </div>
 </asp:Content>
 
